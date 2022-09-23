@@ -12,7 +12,7 @@ jobs:
     steps:
       - name: Checkout the files
         uses: actions/checkout@v2
-      
+      #deploy to server
       - name: Deploy to Server EC2
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY }}
