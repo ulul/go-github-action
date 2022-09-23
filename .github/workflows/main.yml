@@ -12,7 +12,7 @@ jobs:
     steps:
       - name: Login to VM
         uses: appleboy/ssh-action@master
-
+        #trigger github actions
         with:
           host: ${{ secrets.REMOTE_HOST }}
           username: ${{ secrets.REMOTE_USER }}
