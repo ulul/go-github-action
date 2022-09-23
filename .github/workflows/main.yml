@@ -10,39 +10,46 @@ jobs:
     name: "Deploy APP to VM"
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout the files
-        uses: actions/checkout@v2
+      - name: Login to VM
+        uses: appleboy/ssh-action@master
 
-        #update host
-      - name: Deploy to Server EC2
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY }}
-          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
-          REMOTE_USER: ${{ secrets.REMOTE_USER }}
-          MYSQL_HOST: ${{ secrets.MYSQL_HOST }}
-          MYSQL_USER: ${{ secrets.MYSQL_USER }}
-          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
-          MYSQL_PORT: ${{ secrets.MYSQL_PORT }}
-          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-        run: |
-          echo "$SSH_PRIVATE_KEY" > private_key && chmod 400 private_key
-          ssh -o StrictHostKeyChecking=no -i private_key ${REMOTE_USER}@${REMOTE_HOST} '
-            #Now we have got the access of EC2 and we will start the deploy .
-            sudo chmod 777 /var/run/docker.sock
-            sudo git pull https://github.com/ulul/go-github-action &&
-            cd go-github-action &&
-            sudo touch .env &&
-            echo APP_PORT=$APP_PORT >> .env &&
-            echo MYSQL_HOST=${MYSQL_HOST} >> .env &&
-            echo MYSQL_USER=${MYSQL_USER} .env &&
-            echo MYSQL_PASSWORD=${MYSQL_PASSWORD} .env &&
-            echo MYSQL_PORT=${MYSQL_PORT} .env &&
-            echo MYSQL_DATABASE=${MYSQL_DATABASE} .env &&
-            echo JWT_SECRET=${JWT_SECRET} .env &&
-            sudo docker build -t go-apps-image &&
-            sudo docker container stop go-apps-container || true &&
-            sudo docker container rm go-apps-container || true &&
-            sudo docker container create --name go-apps-container -p 80:8080 go-apps-image:latest &&
-            sudo docker container start go-apps-container
-          '
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            whoami
+
+      #   #update host
+      # - name: Deploy to Server EC2
+      #   env:
+      #     SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY }}
+      #     REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+      #     REMOTE_USER: ${{ secrets.REMOTE_USER }}
+      #     MYSQL_HOST: ${{ secrets.MYSQL_HOST }}
+      #     MYSQL_USER: ${{ secrets.MYSQL_USER }}
+      #     MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+      #     MYSQL_PORT: ${{ secrets.MYSQL_PORT }}
+      #     MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
+      #     JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      #   run: |
+      #     echo "$SSH_PRIVATE_KEY" > private_key && chmod 400 private_key
+      #     ssh -o StrictHostKeyChecking=no -i private_key ${REMOTE_USER}@${REMOTE_HOST} '
+      #       #Now we have got the access of EC2 and we will start the deploy .
+      #       sudo chmod 777 /var/run/docker.sock
+      #       sudo git pull https://github.com/ulul/go-github-action &&
+      #       cd go-github-action &&
+      #       sudo touch .env &&
+      #       echo APP_PORT=$APP_PORT >> .env &&
+      #       echo MYSQL_HOST=${MYSQL_HOST} >> .env &&
+      #       echo MYSQL_USER=${MYSQL_USER} .env &&
+      #       echo MYSQL_PASSWORD=${MYSQL_PASSWORD} .env &&
+      #       echo MYSQL_PORT=${MYSQL_PORT} .env &&
+      #       echo MYSQL_DATABASE=${MYSQL_DATABASE} .env &&
+      #       echo JWT_SECRET=${JWT_SECRET} .env &&
+      #       sudo docker build -t go-apps-image &&
+      #       sudo docker container stop go-apps-container || true &&
+      #       sudo docker container rm go-apps-container || true &&
+      #       sudo docker container create --name go-apps-container -p 80:8080 go-apps-image:latest &&
+      #       sudo docker container start go-apps-container
+      #     '
