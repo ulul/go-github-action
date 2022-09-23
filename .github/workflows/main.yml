@@ -14,8 +14,8 @@ jobs:
         uses: appleboy/ssh-action@master
         #trigger github actions
         with:
-          host: ${{ secrets.REMOTE_HOST }}
-          username: ${{ secrets.REMOTE_USER }}
+          host: 18.143.166.125
+          username: ubuntu
           key: ${{ secrets.SSH_KEY }}
           script: |
             whoami
