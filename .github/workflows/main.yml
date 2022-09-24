@@ -25,6 +25,12 @@ jobs:
           MYSQL_PASSWORD: ${{ secrets.RDS_MYSQL_PASSWORD }}
           MYSQL_PORT: ${{ secrets.RDS_MYSQL_PORT }}
           JWT_SECRET: ${{ secrets.APPS_JWT_SECRET }}
+          # 1. login to vm
+          # 2. go to directory project that already clone
+          # 3. setting environtment
+          # 4. build docker images
+          # 5. build docker container from its image
+          # 6. run container 
         run: |
           echo "$SSH_PRIVATE_KEY" > private_key && chmod 400 private_key
           ssh -o StrictHostKeyChecking=no -i private_key ${REMOTE_USER}@${REMOTE_HOST} '
@@ -32,7 +38,6 @@ jobs:
             #Now we have got the access of EC2 and we will start the deploy .
               whoami
               sudo chmod 400 /var/run/docker.sock
-              sudo git pull https://github.com/ulul/go-github-action &&
               cd go-github-action &&
               sudo touch .env &&
               echo APP_PORT=$APP_PORT >> .env &&
@@ -42,7 +47,7 @@ jobs:
               echo MYSQL_PORT=${MYSQL_PORT} .env &&
               echo MYSQL_DATABASE=${MYSQL_DATABASE} .env &&
               echo JWT_SECRET=${JWT_SECRET} .env &&
-              sudo docker build -t go-apps-image &&
+              sudo docker build -t go-apps-image . &&
               sudo docker container stop go-apps-container || true &&
               sudo docker container rm go-apps-container || true &&
               sudo docker container create --name go-apps-container -p 80:8080 go-apps-image:latest &&
